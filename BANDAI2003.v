@@ -26,7 +26,7 @@ module BANDAI2003 (
         if (~RSTn) begin
             SR <= {(18){1'b1}};
             LS <= ADDR_ACK;
-        end else if (LS && ADDR == LS)
+        end else if (LS != ADDR_NIH && ADDR == LS)
             case (ADDR)
                 ADDR_ACK: LS <= ADDR_NAK;
                 ADDR_NAK: begin

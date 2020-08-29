@@ -14,11 +14,11 @@ module BANDAI2003 (
 
     localparam ADDR_ACK = 8'h5A;
     localparam ADDR_NAK = 8'hA5;
-    localparam ADDR_NIL = 8'h00;
+    localparam ADDR_NIH = 8'hFF;
 
     reg [19:0] SR; // Shift Register - Right
 
-    localparam [19:0] BS = 20'b00010100010100000011; // Bit-stream - Sets SYSTEM_CTRL1 (A0h) bit 8 high.
+    localparam [19:0] BS = 20'b00010100010100000011; // *Reversed* Bit-stream  - Sets SYSTEM_CTRL1 (A0h) bit 8 high.
 
     assign SO = ~RSTn ? 1'bZ : SR[0];
 
@@ -30,7 +30,7 @@ module BANDAI2003 (
             case (ADDR)
                 ADDR_ACK: LS <= ADDR_NAK;
                 ADDR_NAK: begin
-                    LS <= ADDR_NIL;
+                    LS <= ADDR_NIH;
                     SR <= BS;
                 end
             endcase
@@ -38,7 +38,7 @@ module BANDAI2003 (
             SR <= {1'b1, SR[19:1]};
     end
 
-    wire LCKn = LS != ADDR_NIL;
+    wire LCKn = ~LS; // The end is nigh
 
     reg [7:0] BR [3:0]; // Bank Registers
 

@@ -18,7 +18,7 @@ module BANDAI2003 (
 
     reg [17:0] SR; // Shift Register - Right
 
-    localparam [17:0] BS = 18'b000101000101000000; // *Reversed* Bit-stream  - Sets SYSTEM_CTRL1 (A0h) bit 8 high.
+    localparam [17:0] BS = {1'b0, 16'h28A0, 1'b0};; // *Reversed* Bit-stream  - Sets SYSTEM_CTRL1 (A0h) bit 8 high.
 
     assign SO = ~RSTn ? 1'bZ : SR[0];
 

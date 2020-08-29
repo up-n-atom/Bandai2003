@@ -1,11 +1,14 @@
 module BANDAI2003 (
     input CLK,
-    output SO
-    input RST,
-    input[7:0] ADDR,
+    input CEn,
+    input WEn,
+    input OEn,
+    input SSn,
+    output SO, /* Synchronous out */
+    input RSTn,
+    input[7:0] ADDR, /* A-1 to A3 + A15 to A18 */
+    inout[7:0] DQ /* Warning: Tri-state */
 );
-
-    wire LCK; // Lock
 
     reg [7:0] LS; // Lock State - Addressed unlock sequence
 
@@ -13,19 +16,15 @@ module BANDAI2003 (
     localparam ADDR_NAK = 8'hA5;
     localparam ADDR_NIL = 8'h00;
 
-    localparam W = 20; // 20-bit wide buffer
+    reg [19:0] SR; // Shift Register - Right
 
-    reg [W-1:0] SR; // Shift Register - Right
+    localparam [19:0] BS = 20'b00010100010100000011; // Bit-stream - Sets SYSTEM_CTRL1 (A0h) bit 8 high.
 
-    localparam [W-1:0] BS = 20'b00010100010100000011; // Bit-stream - sets SYSTEM_CTRL1 (A0h) bit 8 high.
+    assign SO = ~RSTn ? 1'bZ : SR[0];
 
-    assign LCK = LS != ADDR_NIL;
-
-    assign SO = ~RST ? 1'bZ : SR[0];
-
-    always @ (posedge CLK or negedge RST) begin
-        if (!RST) begin
-            SR <= {(W){1'b1}};
+    always @ (posedge CLK or negedge RSTn) begin
+        if (~RSTn) begin
+            SR <= {(20){1'b1}};
             LS <= ADDR_ACK;
         end else if (LS && ADDR == LS)
             case (ADDR)
@@ -36,7 +35,31 @@ module BANDAI2003 (
                 end
             endcase
         else
-            SR <= {1'b1, SR[W-1:1]};
+            SR <= {1'b1, SR[19:1]};
+    end
+
+    wire LCKn = LS != ADDR_NIL;
+
+    reg [7:0] BR [3:0]; // Bank Registers
+
+    localparam ADDR_LAO = 8'hC0; // Linear Address Offset
+    localparam ADDR_RAM = 8'hC1; // RAM Bank
+    localparam ADDR_ROM0 = 8'hC2; // ROM Bank #0
+    localparam ADDR_ROM1 = 8'hC3; // ROM Bank #1
+
+    wire IBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_ROM1);
+    wire OBR = IBR && ~OEn && WEn;
+    wire WBR = IBR && OEn && ~WEn;
+
+    assign DQ = RSTn && ~LCKn && OBR ? BR[ADDR & 8'h03] : 8'hZZ;
+
+    always @ (RSTn or LCKn or WBR or ADDR or DQ) begin
+        if (~RSTn)
+            for (i = 0; i < 4; i = i + 1)
+                BR[i] = 8'hFF;
+        else if (~LCKn)
+            if (WBR)
+                BR[ADDR & 8'h03] = DQ;
     end
 
 endmodule

@@ -51,7 +51,7 @@ module BANDAI2003 (
     wire OBR = IBR && ~OEn && WEn;
     wire WBR = IBR && OEn && ~WEn;
 
-    assign DQ = ~LCKn && OBR ? BR[ADDR & 8'h03] : 8'hZZ;
+    assign DQ = RSTn && ~LCKn && OBR ? BR[ADDR & 8'h03] : 8'hZZ;
 
     always @ (RSTn or LCKn or WBR or ADDR or DQ) begin
         if (~RSTn)

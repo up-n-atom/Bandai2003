@@ -34,8 +34,8 @@ module BANDAI2003 (
             case (ADDR)
                 ADDR_ACK: LS <= ADDR_NAK;
                 ADDR_NAK: begin
-                    LS <= ADDR_NIH;
                     SR <= BS;
+                    LS <= ADDR_NIH;
                 end
             endcase
         else

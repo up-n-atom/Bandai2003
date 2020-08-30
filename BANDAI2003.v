@@ -18,8 +18,8 @@ module BANDAI2003 (
 
     reg [17:0] SR; // Shift Register - Right
 
-    //                   +--+  +--+        +--+  +--+           
-    //                   |  |  |  |        |  |  |  |           
+    // +                 +--+  +--+        +--+  +--+           +
+    // |                 |  |  |  |        |  |  |  |           |
     // +--+--+--+--+--+--+  +--+  +--+--+--+  +--+  +---+---+---+
     // Bit-stream - Invokes SYSTEM_CTRL1 (A0h) bit 8 to 1.
     localparam [17:0] BS = {1'b0, 16'h28A0, 1'b0};

@@ -57,6 +57,8 @@ module BANDAI2003 (
 
     assign DQ = ~LCKn && OBR ? BR[ADDR & 8'h03] : 8'hZZ;
 
+    integer i;
+
     always @ (RSTn or LCKn or WBR or ADDR or DQ) begin
         if (~RSTn)
             for (i = 0; i < 4; i = i + 1)

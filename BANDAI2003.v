@@ -47,11 +47,11 @@ module BANDAI2003 (
     reg [7:0] BR [3:0]; // Bank Registers
 
     localparam ADDR_LAO = 8'hC0; // Linear Address Offset
-    localparam ADDR_RAM = 8'hC1; // RAM Bank
-    localparam ADDR_ROM0 = 8'hC2; // ROM Bank #0
-    localparam ADDR_ROM1 = 8'hC3; // ROM Bank #1
+    localparam ADDR_BRAM = 8'hC1; // RAM Bank
+    localparam ADDR_BROM0 = 8'hC2; // ROM Bank #0
+    localparam ADDR_BROM1 = 8'hC3; // ROM Bank #1
 
-    wire IBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_ROM1);
+    wire IBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1);
     wire OBR = IBR && ~OEn && WEn;
     wire WBR = IBR && OEn && ~WEn;
 

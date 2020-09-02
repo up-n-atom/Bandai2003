@@ -40,7 +40,6 @@ module BANDAI2003 (
                         SR <= BS;
                         LS <= ADDR_NIH;
                     end
-                    default: LS <= ADDR_ACK;
                 endcase
             else
                 SR <= {1'b1, SR[17:1]};

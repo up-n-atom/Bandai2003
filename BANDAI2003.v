@@ -16,6 +16,8 @@ module BANDAI2003 (
     localparam ADDR_NAK = 8'hA5;
     localparam ADDR_NIH = 8'hFF;
 
+    wire LCKn = LS != ADDR_NIH; // The end is nigh
+
     reg [17:0] SR; // Shift Register - Right
 
     // +                 +--+  +--+        +--+  +--+           +
@@ -30,7 +32,7 @@ module BANDAI2003 (
         if (~RSTn) begin
             SR <= {(18){1'b1}};
             LS <= ADDR_ACK;
-        end else if (LS != ADDR_NIH && ADDR == LS)
+        end else if (LCKn && ADDR == LS)
             case (ADDR)
                 ADDR_ACK: LS <= ADDR_NAK;
                 ADDR_NAK: begin
@@ -41,8 +43,6 @@ module BANDAI2003 (
         else
             SR <= {1'b1, SR[17:1]};
     end
-
-    wire LCKn = LS != ADDR_NIH; // The end is nigh
 
     reg [7:0] BR [3:0]; // Bank Registers
 

@@ -63,7 +63,7 @@ module BANDAI2003 (
 
     integer i;
 
-    always @ (RSTn or LCKn or WBR or ADDR or DQ) begin
+    always @* begin
         if (~RSTn)
             for (i = 0; i < 4; i = i + 1)
                 BR[i] = 8'hFF;

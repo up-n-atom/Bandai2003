@@ -7,7 +7,10 @@ module BANDAI2003 (
     output SO, /* Synchronous out */
     input RSTn,
     input[7:0] ADDR, /* A-1 to A3 + A15 to A18 */
-    inout[7:0] DQ /* Warning: Tri-state */
+    inout[7:0] DQ, /* Warning: Tri-state */
+    output ROMCEn,
+    output RAMCEn,
+    output [6:0] RADDR /* ROM/RAM A15 to A21 */
 );
 
     reg [7:0] LS; // Lock State - Addressed unlock sequence
@@ -68,5 +71,12 @@ module BANDAI2003 (
             if (WBR)
                 BR[ADDR & 8'h03] = DQ;
     end
+
+    wire RCE = ~LCKn && SSn && ~CEn;
+
+    assign RAMCEn = ~(RCE && ADDR[7:4] == 4'h1);
+    assign ROMCEn = ~(RCE && ADDR[7:4] > 4'h1);
+
+    assign RADDR = ~RAMCEn || ~ROMCEn ? (ADDR[7:4] & 4'h3) > 4'h3 ? {ADDR[7:4], BR[0][2:0]} : BR[ADDR[7:4] & 4'h3] : 7'b0;
 
 endmodule

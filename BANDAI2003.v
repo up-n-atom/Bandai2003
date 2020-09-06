@@ -13,70 +13,70 @@ module BANDAI2003 (
     output [6:0] RADDR /* ROM/RAM A15 to A21 */
 );
 
-    reg [7:0] LS; // Lock State - Addressed unlock sequence
+    reg [7:0] lckS; // Lock State - Addressed unlock sequence
 
     localparam ADDR_ACK = 8'h5A;
     localparam ADDR_NAK = 8'hA5;
     localparam ADDR_NIH = 8'hFF;
 
-    wire LCKn = LS != ADDR_NIH; // The end is nigh
+    wire LCKn = lckS != ADDR_NIH; // The end is nigh
 
-    reg [17:0] SR; // Shift Register - Right
+    reg [17:0] shR; // Shift Register - Right
 
     // +                 +--+  +--+        +--+  +--+           +
     // |                 |  |  |  |        |  |  |  |           |
     // +--+--+--+--+--+--+  +--+  +--+--+--+  +--+  +---+---+---+
     // Bit-stream - Invokes SYSTEM_CTRL1 (A0h) bit 8 to 1.
-    localparam [17:0] BS = {1'b0, 16'h28A0, 1'b0};
+    localparam [17:0] bitS = {1'b0, 16'h28A0, 1'b0};
 
     assign SO = ~RSTn ? 1'bZ : SR[0];
 
     always @ (posedge CLK or negedge RSTn) begin
         if (~RSTn) begin
-            SR <= {(18){1'b1}};
-            LS <= ADDR_ACK;
+            shR <= {(18){1'b1}};
+            lckS <= ADDR_ACK;
         end else
-            if (LCKn && ADDR == LS)
+            if (LCKn && ADDR == lckS)
                 case (ADDR)
-                    ADDR_ACK: LS <= ADDR_NAK;
+                    ADDR_ACK: lckS <= ADDR_NAK;
                     ADDR_NAK: begin
-                        SR <= BS;
-                        LS <= ADDR_NIH;
+                        shR <= bitS;
+                        lckS <= ADDR_NIH;
                     end
                 endcase
             else
-                SR <= {1'b1, SR[17:1]};
+                shR <= {1'b1, SR[17:1]};
     end
 
-    reg [7:0] BR [3:0]; // Bank Registers
+    reg [7:0] bnkR [3:0]; // Bank Registers
 
     localparam ADDR_LAO = 8'hC0; // Linear Address Offset
     localparam ADDR_BRAM = 8'hC1; // RAM Bank
     localparam ADDR_BROM0 = 8'hC2; // ROM Bank #0
     localparam ADDR_BROM1 = 8'hC3; // ROM Bank #1
 
-    wire IBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1);
-    wire OBR = IBR && ~OEn && WEn;
-    wire WBR = IBR && OEn && ~WEn;
+    wire iBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1);
+    wire oBR = iBR && ~OEn && WEn;
+    wire wBR = iBR && OEn && ~WEn;
 
-    assign DQ = ~LCKn && OBR ? BR[ADDR[1:0] & 2'h3] : 8'hZZ;
+    assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0] & 2'h3] : 8'hZZ;
 
     integer i;
 
     always @* begin
         if (~RSTn)
             for (i = 0; i < 4; i = i + 1)
-                BR[i] = 8'hFF;
+                bnkR[i] = 8'hFF;
         else if (~LCKn)
-            if (WBR)
-                BR[ADDR[1:0] & 2'h3] = DQ;
+            if (wBR)
+                bnkR[ADDR[1:0] & 2'h3] = DQ;
     end
 
-    wire RCE = ~LCKn && SSn && ~CEn;
+    wire rCE = ~LCKn && SSn && ~CEn;
 
-    assign RAMCEn = ~(RCE && ADDR[7:4] == 4'h1);
-    assign ROMCEn = ~(RCE && ADDR[7:4] > 4'h1);
+    assign RAMCEn = ~(rCE && ADDR[7:4] == 4'h1);
+    assign ROMCEn = ~(rCE && ADDR[7:4] > 4'h1);
 
-    assign RADDR = ~RAMCEn || ~ROMCEn ? (ADDR[7:4] & 4'h3) > 4'h3 ? {ADDR[7:4], BR[0][2:0]} : BR[ADDR[7:4] & 4'h3] : 7'b0;
+    assign RADDR = ~RAMCEn || ~ROMCEn ? (ADDR[7:4] & 4'h3) > 4'h3 ? {ADDR[7:4], bnkR[0][2:0]} : bnkR[ADDR[7:4] & 4'h3] : 7'b0;
 
 endmodule

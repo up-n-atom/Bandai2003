@@ -8,6 +8,9 @@ module BANDAI2003 (
     input RSTn,
     input [7:0] ADDR, /* A-1 to A3 + A15 to A18 */
     inout [7:0] DQ, /* Warning: Tri-state */
+`ifdef GPIO
+    inout [3:0] IO,
+`endif
     output ROMCEn,
     output RAMCEn,
     output [6:0] RADDR /* ROM/RAM A15 to A21 */
@@ -58,14 +61,41 @@ module BANDAI2003 (
     assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
     wire [7:0] iDQ = DQ;
 
-    integer i;
+`ifdef GPIO
+    reg [3:0] ioC;
+    reg [3:0] ioS;
+
+    localparam ADDR_IOCTL = 8'hCC;
+    localparam ADDR_IOSCN = 8'hCD;
+
+    genvar i;
+
+    generate
+        for(i = 0; i < 4; i = i + 1)
+            assign IO[i] = ioC[i] ? ioS[i] : 1'bZ;
+    endgenerate
+`endif
+
+    integer j;
 
     always @(posedge WEn or negedge RSTn) begin
-        if (~RSTn)
-            for (i = 0; i < 4; i = i + 1)
-                bnkR[i] <= 8'hFF;
-        else if (~LCKn && iBR)
-            bnkR[ADDR[1:0]] <= iDQ;
+        if (~RSTn) begin
+            for (j = 0; i < 4; j = j + 1)
+                bnkR[j] = 8'hFF;
+`ifdef GPIO
+            ioC = 4'h0;
+            ioS = 4'h0;
+`endif
+        end else if (~LCKn && ~(SSn & CEn))
+            case (ADDR)
+`ifdef GPIO
+                ADDR_IOCTL: ioC = DQ;
+                ADDR_IOSCN: ioS = DQ;
+`endif
+                default:
+                    if (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1)
+                        bnkR[ADDR[1:0] & 2'h3] = DQ;
+                endcase
     end
 
     wire rCE = ~LCKn && SSn && ~CEn;

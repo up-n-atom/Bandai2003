@@ -86,8 +86,8 @@ module BANDAI2003 (
     wire rCE = ~LCKn && SSn && ~CEn;
 
 `ifdef EIGHTBITROM
-    assign RAMCEn = ~BYTEn ? 1'b1 : ~(rCE && ADDR[7:4] == 4'h1);
-    assign ROMCEn = ~BYTEn ? 1'b0 : ~(rCE && ADDR[7:4] > 4'h1);
+    assign RAMCEn = ~(rCE && BYTEn && ADDR[7:4] == 4'h1);
+    assign ROMCEn = ~(rCE && (~BYTEn || ADDR[7:4] > 4'h1));
 `else
     assign RAMCEn = ~(rCE && ADDR[7:4] == 4'h1);
     assign ROMCEn = ~(rCE && ADDR[7:4] > 4'h1);

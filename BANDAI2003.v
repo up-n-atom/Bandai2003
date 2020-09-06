@@ -67,8 +67,8 @@ module BANDAI2003 (
         if (~RSTn)
             for (i = 0; i < 4; i = i + 1)
                 bnkR[i] = 8'hFF;
-        else if (~LCKn)
-            if (wBR)
+        else
+            if (~LCKn && wBR)
                 bnkR[ADDR[1:0] & 2'h3] = DQ;
     end
 

@@ -59,7 +59,7 @@ module BANDAI2003 (
     wire OBR = IBR && ~OEn && WEn;
     wire WBR = IBR && OEn && ~WEn;
 
-    assign DQ = ~LCKn && OBR ? BR[ADDR & 8'h03] : 8'hZZ;
+    assign DQ = ~LCKn && OBR ? BR[ADDR[1:0] & 2'h3] : 8'hZZ;
 
     integer i;
 
@@ -69,7 +69,7 @@ module BANDAI2003 (
                 BR[i] = 8'hFF;
         else if (~LCKn)
             if (WBR)
-                BR[ADDR & 8'h03] = DQ;
+                BR[ADDR[1:0] & 2'h3] = DQ;
     end
 
     wire RCE = ~LCKn && SSn && ~CEn;

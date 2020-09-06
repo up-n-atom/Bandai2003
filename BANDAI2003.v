@@ -10,6 +10,9 @@ module BANDAI2003 (
     inout[7:0] DQ, /* Warning: Tri-state */
     output ROMCEn,
     output RAMCEn,
+`ifdef EIGHTBITROM
+    output reg BYTEn,
+`endif
     output[6:0] RADDR /* ROM/RAM A15 to A21 */
 );
 
@@ -58,20 +61,37 @@ module BANDAI2003 (
     assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
     wire[7:0] iDQ = DQ;
 
+`ifdef EIGHTBITROM
+    localparam ADDR_MCTRL = 8'hCE; // Memory Control
+`endif
+
     integer i;
 
     always @(posedge WEn or negedge RSTn) begin
-        if (~RSTn)
+        if (~RSTn) begin
             for (i = 0; i < 4; i = i + 1)
-                bnkR[i] <= 8'hFF;
-        else if (~LCKn && iBR)
-            bnkR[ADDR[1:0]] <= iDQ;
+                bnkR[i] = 8'hFF;
+`ifdef EIGHTBITROM
+            BYTEn = 1'b1;
+`endif
+        end else if (~LCKn && ~(SSn & CEn))
+            if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
+                bnkR[ADDR[1:0] & 2'h3] = iDQ;
+`ifdef EIGHTBITROM
+            else if (ADDR == ADDR_MCTRL)
+                BYTEn = ~iDQ;
+`endif
     end
 
     wire rCE = ~LCKn && SSn && ~CEn;
 
+`ifdef EIGHTBITROM
+    assign RAMCEn = ~BYTEn ? 1'b1 : ~(rCE && ADDR[7:4] == 4'h1);
+    assign ROMCEn = ~BYTEn ? 1'b0 : ~(rCE && ADDR[7:4] > 4'h1);
+`else
     assign RAMCEn = ~(rCE && ADDR[7:4] == 4'h1);
     assign ROMCEn = ~(rCE && ADDR[7:4] > 4'h1);
+`endif
 
     assign RADDR = ~RAMCEn || ~ROMCEn ? ADDR[7:4] > 4'h3 ? {bnkR[0][2:0], ADDR[7:4]} : bnkR[ADDR[5:4]][6:0] : 7'b0;
 

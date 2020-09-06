@@ -77,6 +77,6 @@ module BANDAI2003 (
     assign RAMCEn = ~(rCE && ADDR[7:4] == 4'h1);
     assign ROMCEn = ~(rCE && ADDR[7:4] > 4'h1);
 
-    assign RADDR = ~RAMCEn || ~ROMCEn ? ADDR[7:4] > 4'h3 ? {ADDR[7:4], bnkR[0][2:0]} : bnkR[ADDR[7:4] & 4'h3] : 7'b0;
+    assign RADDR = ~RAMCEn || ~ROMCEn ? ADDR[7:4] > 4'h3 ? {bnkR[0][2:0], ADDR[7:4]} : bnkR[ADDR[7:4] & 4'h3] : 7'b0;
 
 endmodule

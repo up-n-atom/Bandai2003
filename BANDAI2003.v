@@ -29,10 +29,10 @@ module BANDAI2003 (
         if (~RSTn) begin
             shR <= {(18){1'b1}};
             lckS <= 1'b1;
-        end else if (lckS && ADDR == ADDR_NAK)
+        end else if (lckS && ADDR == ADDR_NAK) begin
             shR <= bitS;
-            lckS <= 1'b0;
-        else
+            lckS <= ~lckS;
+        end else
             shR <= {1'b1, shR[17:1]};
     end
 

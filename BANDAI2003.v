@@ -17,8 +17,6 @@ module BANDAI2003 (
 
     localparam ADDR_NAK = 8'hA5;
 
-    wire LCKn = lckS != 1'b0; // The end is nigh
-
     reg [17:0] shR; // Shift Register - Right
 
     // ¯\______/¯\_/¯\___/¯\_/¯\___/¯
@@ -31,7 +29,7 @@ module BANDAI2003 (
         if (~RSTn) begin
             shR <= {(18){1'b1}};
             lckS <= 1'b1;
-        end else if (LCKn && ADDR == ADDR_NAK)
+        end else if (lckS && ADDR == ADDR_NAK)
             shR <= bitS;
             lckS <= 1'b0;
         else

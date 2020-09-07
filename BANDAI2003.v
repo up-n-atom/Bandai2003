@@ -65,6 +65,19 @@ module BANDAI2003 (
     localparam ADDR_MCTRL = 8'hCE; // Memory Control
 `endif
 
+    function [7:0] fDQ;
+        if (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1)
+            fDQ = bnkR[ADDR[1:0] & 2'h3];
+`ifdef EIGHTBITROM
+        else if (ADDR == ADDR_MCTRL)
+            fDQ = {7'b0, BYTEn};
+`endif
+        else
+            fDQ = 8'hZZ;
+    endfunction
+
+    assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ : 8'hZZ;
+
     integer i;
 
     always @(posedge WEn or negedge RSTn) begin

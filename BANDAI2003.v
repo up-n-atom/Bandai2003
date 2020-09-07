@@ -10,7 +10,7 @@ module BANDAI2003 (
     inout[7:0] DQ, /* Warning: Tri-state */
     output ROMCEn,
     output RAMCEn,
-`ifdef EIGHTBITROM
+`ifdef BTYEMODE
     output reg BYTEn,
 `endif
     output[6:0] RADDR /* ROM/RAM A15 to A21 */
@@ -61,14 +61,14 @@ module BANDAI2003 (
     assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
     wire[7:0] iDQ = DQ;
 
-`ifdef EIGHTBITROM
+`ifdef BTYEMODE
     localparam ADDR_MCTRL = 8'hCE; // Memory Control
 `endif
 
     function [7:0] fDQ;
         if (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1)
             fDQ = bnkR[ADDR[1:0] & 2'h3];
-`ifdef EIGHTBITROM
+`ifdef BTYEMODE
         else if (ADDR == ADDR_MCTRL)
             fDQ = {7'b0, BYTEn};
 `endif
@@ -84,7 +84,7 @@ module BANDAI2003 (
         if (~RSTn) begin
             for (i = 0; i < 4; i = i + 1)
                 bnkR[i] = 8'hFF;
-`ifdef EIGHTBITROM
+`ifdef BTYEMODE
             BYTEn = 1'b1;
 `endif
         end else if (~LCKn && ~(SSn & CEn))
@@ -98,7 +98,7 @@ module BANDAI2003 (
 
     wire rCE = ~LCKn && SSn && ~CEn;
 
-`ifdef EIGHTBITROM
+`ifdef BTYEMODE
     assign RAMCEn = ~(rCE && BYTEn && ADDR[7:4] == 4'h1);
     assign ROMCEn = ~(rCE && (~BYTEn || ADDR[7:4] > 4'h1));
 `else

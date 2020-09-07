@@ -55,12 +55,6 @@ module BANDAI2003 (
     localparam ADDR_ROMB0 = 8'hC2; // ROM Bank #0
     localparam ADDR_ROMB1 = 8'hC3; // ROM Bank #1
 
-    wire iBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1);
-    wire oBR = iBR && ~OEn && WEn;
-
-    assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
-    wire [7:0] iDQ = DQ;
-
 `ifdef GPIO
     reg [3:0] ioC;
     reg [3:0] ioS;
@@ -75,6 +69,31 @@ module BANDAI2003 (
             assign IO[i] = ioC[i] ? ioS[i] : 1'bZ;
     endgenerate
 `endif
+
+    function [7:0] fDQ;
+        integer i;
+
+        case (ADDR)
+`ifdef GPIO
+            ADDR_IOCTL: fDQ = ioC;
+            ADDR_IOSCN: begin
+                fDQ[7:4] = 4'h0;
+
+                for(i = 0; i < 4; i = i + 1)
+                    fDQ[i] = ~ioC[i] ? IO[i] : ioS[i];
+            end
+`endif
+            default: begin
+                if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
+                    fDQ = bnkR[ADDR[1:0] & 2'h3];
+                else
+                    fDQ = 8'hZZ;
+            end
+        endcase
+    endfunction
+
+    assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ : 8'hZZ;
+    wire [7:0] iDQ = DQ;
 
     integer j;
 
@@ -93,7 +112,7 @@ module BANDAI2003 (
                 ADDR_IOSCN: ioS = DQ;
 `endif
                 default:
-                    if (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1)
+                    if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
                         bnkR[ADDR[1:0] & 2'h3] = DQ;
                 endcase
     end

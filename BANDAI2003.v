@@ -9,7 +9,7 @@ module BANDAI2003 (
     input [7:0] ADDR, /* A-1 to A3 + A15 to A18 */
     inout [7:0] DQ, /* Warning: Tri-state */
 `ifdef GPIO
-    inout [3:0] IO,
+    inout [3:0] IO, /* Warning: Tri-state */
 `endif
     output ROMCEn,
     output RAMCEn,
@@ -59,8 +59,8 @@ module BANDAI2003 (
     reg [3:0] ioC;
     reg [3:0] ioS;
 
-    localparam ADDR_IOCTL = 8'hCC;
-    localparam ADDR_IOSCN = 8'hCD;
+    localparam ADDR_IOCTL = 8'hCC; // I/O Port Control
+    localparam ADDR_IOSCN = 8'hCD; // I/O Port Scan
 
     genvar i;
 

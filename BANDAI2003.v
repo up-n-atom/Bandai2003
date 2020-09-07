@@ -13,13 +13,11 @@ module BANDAI2003 (
     output[6:0] RADDR /* ROM/RAM A15 to A21 */
 );
 
-    reg [7:0] lckS; // Lock State - Addressed unlock sequence
+    reg lckS; // Lock State - Addressed unlock sequence
 
-    localparam ADDR_ACK = 8'h5A;
     localparam ADDR_NAK = 8'hA5;
-    localparam ADDR_NIH = 8'hFF;
 
-    wire LCKn = lckS != ADDR_NIH; // The end is nigh
+    wire LCKn = lckS != 1'b0; // The end is nigh
 
     reg [17:0] shR; // Shift Register - Right
 
@@ -32,15 +30,10 @@ module BANDAI2003 (
     always @ (posedge CLK or negedge RSTn) begin
         if (~RSTn) begin
             shR <= {(18){1'b1}};
-            lckS <= ADDR_ACK;
-        end else if (LCKn && ADDR == lckS)
-            case (ADDR)
-                ADDR_ACK: lckS <= ADDR_NAK;
-                ADDR_NAK: begin
-                    shR <= bitS;
-                    lckS <= ADDR_NIH;
-                end
-            endcase
+            lckS <= 1'b1;
+        end else if (LCKn && ADDR == ADDR_NAK)
+            shR <= bitS;
+            lckS <= 1'b0;
         else
             shR <= {1'b1, shR[17:1]};
     end

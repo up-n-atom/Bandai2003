@@ -87,7 +87,7 @@ module BANDAI2003 (
                 if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
                     fDQ = bnkR[ADDR[1:0] & 2'h3];
                 else
-                    fDQ = 8'h0;
+                    fDQ = 8'hZZ;
             end
         endcase
     endfunction

@@ -29,7 +29,7 @@ module BANDAI2003 (
     // Bit-stream - Invokes SYSTEM_CTRL1 (A0h) bit 8 to 1.
     localparam [17:0] bitS = {1'b0, 16'h28A0, 1'b0};
 
-    assign SO = ~RSTn ? 1'bZ : SR[0];
+    assign SO = ~RSTn ? 1'bZ : shR[0];
 
     always @ (posedge CLK or negedge RSTn) begin
         if (~RSTn) begin
@@ -45,7 +45,7 @@ module BANDAI2003 (
                     end
                 endcase
             else
-                shR <= {1'b1, SR[17:1]};
+                shR <= {1'b1, shR[17:1]};
     end
 
     reg [7:0] bnkR [3:0]; // Bank Registers

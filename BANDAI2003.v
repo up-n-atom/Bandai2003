@@ -75,7 +75,7 @@ module BANDAI2003 (
 
         case (ADDR)
 `ifdef GPIO
-            ADDR_IOCTL: fDQ = ioC;
+            ADDR_IOCTL: fDQ = {4'h0, ioC};
             ADDR_IOSCN: begin
                 fDQ[7:4] = 4'h0;
 

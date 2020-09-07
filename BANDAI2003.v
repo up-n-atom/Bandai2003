@@ -73,7 +73,7 @@ module BANDAI2003 (
             fDQ = {7'b0, BYTEn};
 `endif
         else
-            fDQ = 8'h0;
+            fDQ = 8'hZZ;
     endfunction
 
     assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ : 8'hZZ;

@@ -13,7 +13,7 @@ module BANDAI2003 (
     output[6:0] RADDR /* ROM/RAM A15 to A21 */
 );
 
-    reg lckS; // Lock State - Addressed unlock sequence
+    reg lckS; // Lock State
 
     localparam ADDR_NAK = 8'hA5;
 

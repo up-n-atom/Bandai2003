@@ -1,3 +1,4 @@
+// I cut my locks and now I'm a BANDAI2001
 module BANDAI2003 (
     input CLK,
     input CEn,

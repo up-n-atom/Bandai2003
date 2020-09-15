@@ -75,22 +75,20 @@ module BANDAI2003 (
     );
         integer i;
 
-        case (ADDR)
+        if (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1)
+            fDQ = bnkR[ADDR[1:0] & 2'h3]
+        else
+            case (ADDR)
 `ifdef GPIO
-            ADDR_IOCTL: fDQ = {4'h0, ioC};
-            ADDR_IOSCN: begin
-                fDQ[7:4] = 4'h0;
-
-                for(i = 0; i < 4; i = i + 1)
-                    fDQ[i] = ~ioC[i] ? IO[i] : ioS[i];
-            end
+                ADDR_IOCTL: fDQ = {4'h0, ioC};
+                ADDR_IOSCN: begin
+                    fDQ[7:4] = 4'h0;
+    
+                    for(i = 0; i < 4; i = i + 1)
+                        fDQ[i] = ~ioC[i] ? IO[i] : ioS[i];
+                end
 `endif
-            default: begin
-                if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
-                    fDQ = bnkR[ADDR[1:0] & 2'h3];
-                else
-                    fDQ = 8'hZZ;
-            end
+                default: fDQ = 8'hZZ;
         endcase
     endfunction
 
@@ -108,14 +106,14 @@ module BANDAI2003 (
             ioS = 4'h0;
 `endif
         end else if (~LCKn && ~(SSn & CEn))
-            case (ADDR)
+            if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
+                bnkR[ADDR[1:0] & 2'h3] = DQ;
+            else
+                case (ADDR)
 `ifdef GPIO
-                ADDR_IOCTL: ioC = DQ;
-                ADDR_IOSCN: ioS = DQ;
+                    ADDR_IOCTL: ioC = DQ;
+                    ADDR_IOSCN: ioS = DQ;
 `endif
-                default:
-                    if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
-                        bnkR[ADDR[1:0] & 2'h3] = DQ;
                 endcase
     end
 

@@ -70,7 +70,9 @@ module BANDAI2003 (
     endgenerate
 `endif
 
-    function [7:0] fDQ;
+    function [7:0] fDQ(
+        input[7:0] ADDR
+    );
         integer i;
 
         case (ADDR)
@@ -92,7 +94,7 @@ module BANDAI2003 (
         endcase
     endfunction
 
-    assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ : 8'hZZ;
+    assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
     wire [7:0] iDQ = DQ;
 
     integer j;

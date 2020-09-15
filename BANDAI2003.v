@@ -76,7 +76,7 @@ module BANDAI2003 (
         integer i;
 
         if (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1)
-            fDQ = bnkR[ADDR[1:0] & 2'h3]
+            fDQ = bnkR[ADDR[1:0] & 2'h3];
         else
             case (ADDR)
 `ifdef GPIO

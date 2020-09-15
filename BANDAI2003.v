@@ -101,7 +101,7 @@ module BANDAI2003 (
 
     always @(posedge WEn or negedge RSTn) begin
         if (~RSTn) begin
-            for (j = 0; i < 4; j = j + 1)
+            for (j = 0; j < 4; j = j + 1)
                 bnkR[j] = 8'hFF;
 `ifdef GPIO
             ioC = 4'h0;

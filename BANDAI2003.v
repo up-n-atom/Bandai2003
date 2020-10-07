@@ -27,7 +27,7 @@ module BANDAI2003 (
     // Bit-stream - Invokes SYSTEM_CTRL1 (A0h) bit 7 to 1.
     localparam [17:0] bitS = {1'b0, 16'h28A0, 1'b0};
 
-    assign SO = ~RSTn ? 1'bZ : shR[0];
+    assign SO = ~RSTn ? 1'bZ : shR[0]; // Change hi-Z on cart
 
     always @ (posedge CLK or negedge RSTn) begin
         if (~RSTn) begin

@@ -57,19 +57,18 @@ module BANDAI2003 (
 
     wire iBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1);
     wire oBR = iBR && ~OEn && WEn;
-    wire wBR = iBR && OEn && ~WEn;
 
     assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0] & 2'h3] : 8'hZZ;
+    wire[7:0] iDQ = DQ;
 
     integer i;
 
-    always @* begin
+    always @(posedge WEn or negedge RSTn) begin
         if (~RSTn)
             for (i = 0; i < 4; i = i + 1)
-                bnkR[i] = 8'hFF;
-        else
-            if (~LCKn && wBR)
-                bnkR[ADDR[1:0] & 2'h3] = DQ;
+                bnkR[i] <= 8'hFF;
+        else if (~LCKn && iBR)
+            bnkR[ADDR[1:0] & 2'h3] <= iDQ;
     end
 
     wire rCE = ~LCKn && SSn && ~CEn;

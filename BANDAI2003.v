@@ -10,7 +10,7 @@ module BANDAI2003 (
     inout[7:0] DQ, /* Warning: Tri-state */
     output ROMCEn,
     output RAMCEn,
-    output [6:0] RADDR /* ROM/RAM A15 to A21 */
+    output[6:0] RADDR /* ROM/RAM A15 to A21 */
 );
 
     reg [7:0] lckS; // Lock State - Addressed unlock sequence

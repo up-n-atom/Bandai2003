@@ -58,7 +58,7 @@ module BANDAI2003 (
     wire iBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1);
     wire oBR = iBR && ~OEn && WEn;
 
-    assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0] & 2'h3] : 8'hZZ;
+    assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
     wire[7:0] iDQ = DQ;
 
     integer i;
@@ -68,7 +68,7 @@ module BANDAI2003 (
             for (i = 0; i < 4; i = i + 1)
                 bnkR[i] <= 8'hFF;
         else if (~LCKn && iBR)
-            bnkR[ADDR[1:0] & 2'h3] <= iDQ;
+            bnkR[ADDR[1:0]] <= iDQ;
     end
 
     wire rCE = ~LCKn && SSn && ~CEn;
@@ -76,6 +76,6 @@ module BANDAI2003 (
     assign RAMCEn = ~(rCE && ADDR[7:4] == 4'h1);
     assign ROMCEn = ~(rCE && ADDR[7:4] > 4'h1);
 
-    assign RADDR = ~RAMCEn || ~ROMCEn ? ADDR[7:4] > 4'h3 ? {bnkR[0][2:0], ADDR[7:4]} : bnkR[ADDR[5:4] & 2'h3] : 7'b0;
+    assign RADDR = ~RAMCEn || ~ROMCEn ? ADDR[7:4] > 4'h3 ? {bnkR[0][2:0], ADDR[7:4]} : bnkR[ADDR[5:4]] : 7'b0;
 
 endmodule

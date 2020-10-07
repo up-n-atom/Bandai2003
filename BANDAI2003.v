@@ -58,6 +58,9 @@ module BANDAI2003 (
     wire iBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1);
     wire oBR = iBR && ~OEn && WEn;
 
+    assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
+    wire [7:0] iDQ = DQ;
+
 `ifdef BTYEMODE
     localparam ADDR_MCTRL = 8'hCE; // Memory Control
 `endif
@@ -76,7 +79,6 @@ module BANDAI2003 (
     endfunction
 
     assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
-    wire [7:0] iDQ = DQ;
 
     integer i;
 

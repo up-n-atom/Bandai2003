@@ -65,7 +65,9 @@ module BANDAI2003 (
     localparam ADDR_MCTRL = 8'hCE; // Memory Control
 `endif
 
-    function [7:0] fDQ;
+    function [7:0] fDQ(
+        input[7:0] ADDR
+    );
         if (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1)
             fDQ = bnkR[ADDR[1:0] & 2'h3];
 `ifdef BTYEMODE
@@ -76,7 +78,7 @@ module BANDAI2003 (
             fDQ = 8'hZZ;
     endfunction
 
-    assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ : 8'hZZ;
+    assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
 
     integer i;
 

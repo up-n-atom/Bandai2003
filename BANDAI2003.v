@@ -55,12 +55,6 @@ module BANDAI2003 (
     localparam ADDR_ROMB0 = 8'hC2; // ROM Bank #0
     localparam ADDR_ROMB1 = 8'hC3; // ROM Bank #1
 
-    wire iBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1);
-    wire oBR = iBR && ~OEn && WEn;
-
-    assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
-    wire [7:0] iDQ = DQ;
-
 `ifdef BTYEMODE
     localparam ADDR_MCTRL = 8'hCE; // Memory Control
 `endif
@@ -68,7 +62,7 @@ module BANDAI2003 (
     function [7:0] fDQ(
         input[7:0] ADDR
     );
-        if (ADDR >= ADDR_LAO && ADDR <= ADDR_BROM1)
+        if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
             fDQ = bnkR[ADDR[1:0] & 2'h3];
 `ifdef BTYEMODE
         else if (ADDR == ADDR_MCTRL)
@@ -79,6 +73,7 @@ module BANDAI2003 (
     endfunction
 
     assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
+    wire [7:0] iDQ = DQ;
 
     integer i;
 

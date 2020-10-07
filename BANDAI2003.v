@@ -33,17 +33,16 @@ module BANDAI2003 (
         if (~RSTn) begin
             shR <= {(18){1'b1}};
             lckS <= ADDR_ACK;
-        end else
-            if (LCKn && ADDR == lckS)
-                case (ADDR)
-                    ADDR_ACK: lckS <= ADDR_NAK;
-                    ADDR_NAK: begin
-                        shR <= bitS;
-                        lckS <= ADDR_NIH;
-                    end
-                endcase
-            else
-                shR <= {1'b1, shR[17:1]};
+        end else if (LCKn && ADDR == lckS)
+            case (ADDR)
+                ADDR_ACK: lckS <= ADDR_NAK;
+                ADDR_NAK: begin
+                    shR <= bitS;
+                    lckS <= ADDR_NIH;
+                end
+            endcase
+        else
+            shR <= {1'b1, shR[17:1]};
     end
 
     reg [7:0] bnkR [3:0]; // Bank Registers

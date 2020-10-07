@@ -1,3 +1,5 @@
+`define BYTEMODE
+
 module BANDAI2003 (
     input CLK,
     input CEn,

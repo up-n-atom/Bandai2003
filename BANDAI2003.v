@@ -1,3 +1,5 @@
+`define GPIO
+
 module BANDAI2003 (
     input CLK,
     input CEn,

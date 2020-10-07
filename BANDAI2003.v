@@ -24,7 +24,7 @@ module BANDAI2003 (
     reg [17:0] shR; // Shift Register - Right
 
     // ¯\______/¯\_/¯\___/¯\_/¯\___/¯
-    // Bit-stream - Invokes SYSTEM_CTRL1 (A0h) bit 8 to 1.
+    // Bit-stream - Invokes SYSTEM_CTRL1 (A0h) bit 7 to 1.
     localparam [17:0] bitS = {1'b0, 16'h28A0, 1'b0};
 
     assign SO = ~RSTn ? 1'bZ : shR[0];

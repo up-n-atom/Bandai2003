@@ -7,11 +7,11 @@ module BANDAI2003 (
     input SSn,
     output SO, /* Synchronous out */
     input RSTn,
-    input[7:0] ADDR, /* A-1 to A3 + A15 to A18 */
-    inout[7:0] DQ, /* Warning: Tri-state */
+    input [7:0] ADDR, /* A-1 to A3 + A15 to A18 */
+    inout [7:0] DQ, /* Warning: Tri-state */
     output ROMCEn,
     output RAMCEn,
-    output[6:0] RADDR /* ROM/RAM A15 to A21 */
+    output [6:0] RADDR /* ROM/RAM A15 to A21 */
 );
 
     reg lckS; // Lock State
@@ -48,7 +48,7 @@ module BANDAI2003 (
     wire oBR = iBR && ~OEn && WEn;
 
     assign DQ = oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
-    wire[7:0] iDQ = DQ;
+    wire [7:0] iDQ = DQ;
 
     integer i;
 

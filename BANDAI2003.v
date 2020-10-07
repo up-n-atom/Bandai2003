@@ -90,7 +90,7 @@ module BANDAI2003 (
         end else if (~LCKn && ~(SSn & CEn))
             if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
                 bnkR[ADDR[1:0] & 2'h3] = iDQ;
-`ifdef EIGHTBITROM
+`ifdef BTYEMODE
             else if (ADDR == ADDR_MCTRL)
                 BYTEn = ~iDQ;
 `endif

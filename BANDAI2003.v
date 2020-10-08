@@ -65,7 +65,7 @@ module BANDAI2003 (
         input[7:0] ADDR
     );
         if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
-            fDQ = bnkR[ADDR[1:0]];
+            fDQ = bnkR[ADDR[1:0] & 2'h3];
 `ifdef BTYEMODE
         else if (ADDR == ADDR_MCTRL)
             fDQ = {7'b0, BYTEn};

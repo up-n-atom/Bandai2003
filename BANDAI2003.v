@@ -94,7 +94,9 @@ module BANDAI2003 (
         endcase
     endfunction
 
-    assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
+    wire seL = ~LCKn && ~(SSn & CEn);
+
+    assign DQ = seL && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
     wire [7:0] iDQ = DQ;
 
     wire rwC = OEn && WEn;
@@ -109,7 +111,7 @@ module BANDAI2003 (
             ioC = 4'h0;
             ioS = 4'h0;
 `endif
-        end else if (~LCKn && ~(SSn & CEn))
+        end else if (seL)
             if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
                 bnkR[ADDR[1:0]] = iDQ;
             else

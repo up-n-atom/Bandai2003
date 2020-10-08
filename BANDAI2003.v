@@ -58,9 +58,11 @@ module BANDAI2003 (
     assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
     wire [7:0] iDQ = DQ;
 
+    wire rwC = OEn && WEn;
+
     integer i;
 
-    always @(posedge WEn or negedge RSTn) begin
+    always @(posedge rwC or negedge RSTn) begin
         if (~RSTn)
             for (i = 0; i < 4; i = i + 1)
                 bnkR[i] <= 8'hFF;

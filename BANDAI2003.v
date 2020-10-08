@@ -74,7 +74,9 @@ module BANDAI2003 (
             fDQ = 8'hZZ;
     endfunction
 
-    assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
+    wire seL = ~LCKn && ~(SSn & CEn);
+
+    assign DQ = seL && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
     wire [7:0] iDQ = DQ;
 
     wire rwC = OEn && WEn;
@@ -88,7 +90,7 @@ module BANDAI2003 (
 `ifdef BTYEMODE
             BYTEn = 1'b1;
 `endif
-        end else if (~LCKn && ~(SSn & CEn))
+        end else if (seL)
             if (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1)
                 bnkR[ADDR[1:0] & 2'h3] = iDQ;
 `ifdef BTYEMODE

@@ -32,7 +32,7 @@ module BANDAI2003 (
     // Bit-stream - Invokes SYSTEM_CTRL1 (A0h) bit 7 to 1.
     localparam [17:0] bitS = {1'b0, 16'h28A0, 1'b0};
 
-    assign SO = ~RSTn ? 1'bZ : shR[0];
+    assign SO = ~RSTn ? 1'bZ : shR[0]; // Change hi-Z on cart
 
     always @ (posedge CLK or negedge RSTn) begin
         if (~RSTn) begin
@@ -97,9 +97,11 @@ module BANDAI2003 (
     assign DQ = ~LCKn && ~(SSn & CEn) && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
     wire [7:0] iDQ = DQ;
 
+    wire rwC = OEn && WEn;
+
     integer j;
 
-    always @(posedge WEn or negedge RSTn) begin
+    always @(posedge rwC or negedge RSTn) begin
         if (~RSTn) begin
             for (j = 0; j < 4; j = j + 1)
                 bnkR[j] = 8'hFF;

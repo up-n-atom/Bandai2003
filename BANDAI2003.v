@@ -10,7 +10,7 @@ module BANDAI2003 (
     inout [7:0] DQ, /* Warning: Tri-state */
     output ROMCEn,
     output RAMCEn,
-    output [6:0] RADDR /* ROM/RAM A15 to A21 */
+    output [9:0] RADDR /* ROM/RAM A15 to A24 - Starting at A-1 */
 );
 
     reg [7:0] lckS; // Lock State - Addressed unlock sequence
@@ -45,17 +45,38 @@ module BANDAI2003 (
             shR <= {1'b1, shR[17:1]};
     end
 
-    reg [7:0] bnkR [3:0]; // Bank Registers
+    reg [7:0] laoR; // Linear Address Offset Register
+    reg [9:0] bnkR [2:0]; // Bank Registers
 
     localparam ADDR_LAO = 8'hC0; // Linear Address Offset
     localparam ADDR_RAMB = 8'hC1; // RAM Bank
     localparam ADDR_ROMB0 = 8'hC2; // ROM Bank #0
     localparam ADDR_ROMB1 = 8'hC3; // ROM Bank #1
+    localparam ADDR_RAMB_L = 8'hD0; // RAM Bank Low
+    localparam ADDR_RAMB_H = 8'hD1; // RAM Bank High
+    localparam ADDR_ROMB0_L = 8'hD2; // ROM Bank #0 Low
+    localparam ADDR_ROMB0_H = 8'hD3; // ROM Bank #0 High
+    localparam ADDR_ROMB1_L = 8'hD4; // ROM Bank #1 Low
+    localparam ADDR_ROMB1_H = 8'hD5; // ROM Bank #1 High
 
-    wire iBR = ~(SSn & CEn) && (ADDR >= ADDR_LAO && ADDR <= ADDR_ROMB1);
-    wire oBR = iBR && ~OEn && WEn;
+    function [7:0] fDQ(
+        input[7:0] ADDR
+    );
+        case (ADDR)
+            ADDR_LAO: fDQ = laoR;
+            ADDR_RAMB, ADDR_RAMB_L: fDQ = bnkR[0];
+            ADDR_ROMB0, ADDR_ROMB0_L: fDQ = bnkR[1]
+            ADDR_ROMB1, ADDR_ROMB1_L: fDQ = bnkR[2];
+            ADDR_RAMB_H: fDQ = {6'b0, bnkR[0][9:8]};
+            ADDR_ROMB0_H: fDQ = {6'b0, bnkR[1][9:8]};
+            ADDR_ROMB1_H: fDQ = {6'b0, bnkR[2][9:8]};
+            default: fDQ = 8'hFF;
+        endcase
+    endfunction
 
-    assign DQ = ~LCKn && oBR ? bnkR[ADDR[1:0]] : 8'hZZ;
+    wire seL = ~LCKn && ~(SSn & CEn);
+
+    assign DQ = seL && ~OEn && WEn ? fDQ(ADDR) : 8'hZZ;
     wire [7:0] iDQ = DQ;
 
     wire rwC = OEn && WEn;
@@ -63,11 +84,20 @@ module BANDAI2003 (
     integer i;
 
     always @(posedge rwC or negedge RSTn) begin
-        if (~RSTn)
-            for (i = 0; i < 4; i = i + 1)
-                bnkR[i] <= 8'hFF;
-        else if (~LCKn && iBR)
-            bnkR[ADDR[1:0]] <= iDQ;
+        if (~RSTn) begin
+            laoR = 8'bFF;
+            for (i = 0; i < 3; i = i + 1)
+                bnkR[i] <= 10'h3FF;
+        end else if (seL)
+            case (ADDR)
+                ADDR_LAO: laoR <= iDQ;
+                ADDR_RAMB, ADDR_RAMB_L: bnkR[0] <= iDQ;
+                ADDR_ROMB0, ADDR_ROMB0_L: bnkR[1] <= iDQ;
+                ADDR_ROMB1, ADDR_ROMB1_L: bnkR[2] <= iDQ;
+                ADDR_RAMB_H: bnkR[0][9:8] <= iDQ[1:0];
+                ADDR_ROMB0_H: bnkR[1][9:8] <= iDQ[1:0];
+                ADDR_ROMB1_H: bnkR[2][9:8] <= iDQ[1:0];
+            endcase
     end
 
     wire rCE = ~LCKn && SSn && ~CEn;
@@ -75,6 +105,6 @@ module BANDAI2003 (
     assign RAMCEn = ~(rCE && ADDR[7:4] == 4'h1);
     assign ROMCEn = ~(rCE && ADDR[7:4] > 4'h1);
 
-    assign RADDR = ~RAMCEn || ~ROMCEn ? ADDR[7:4] > 4'h3 ? {bnkR[0][2:0], ADDR[7:4]} : bnkR[ADDR[5:4]][6:0] : 7'b0;
+    assign RADDR = ~RAMCEn || ~ROMCEn ? ADDR[7:4] > 4'h3 ? {laoR[5:0], ADDR[7:4]} : bnkR[ADDR[5:4] - 1] : 10'b0;
 
 endmodule

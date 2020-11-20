@@ -70,7 +70,7 @@ module BANDAI2003 (
             ADDR_RAMB_H: fDQ = {6'b0, bnkR[0][9:8]};
             ADDR_ROMB0_H: fDQ = {6'b0, bnkR[1][9:8]};
             ADDR_ROMB1_H: fDQ = {6'b0, bnkR[2][9:8]};
-            default: fDQ = 8'hFF;
+            default: fDQ = 8'hZZ;
         endcase
     endfunction
 

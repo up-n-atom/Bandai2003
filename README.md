@@ -7,7 +7,7 @@ A bare minimum Bandai 2003 mapper. Additional features reside in their respectiv
     * WonderWitch
     * MamaMitte
     * NAVI GET 4億
-* [GPIO branch](../../tree/gpio)
+* [GPIO](../../tree/gpio)
     * One Piece Treasure Wars 2
     * WonderBorg Robot Works
     * MamaMitte

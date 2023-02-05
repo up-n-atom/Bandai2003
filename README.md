@@ -2,7 +2,9 @@
 
 A bare minimum Bandai 2003 mapper. Additional features reside in their respective branches.
 
-* [Bandai 2001](../../tree/petite), ie. lockless
+* [Petite](../../tree/petite)
+    * Bare minimum to reduce LUTs
+    * Lockless, ie. 2001
 * [8-bit i/o mode](../../tree/8bit)
     * WonderWitch
     * MamaMitte
